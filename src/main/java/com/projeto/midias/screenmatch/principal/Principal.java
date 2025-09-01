@@ -9,11 +9,9 @@ import com.projeto.midias.screenmatch.service.ConverteDados;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Principal {
     private Scanner input = new Scanner(System.in);
@@ -49,7 +47,6 @@ public class Principal {
 
     public List<Episodio> listaDeEpisodios(List<DadosTemporada> listaTemps) {
         List<Episodio> episodios = listaTemps.stream().flatMap(t -> t.episodios().stream().map(d -> new Episodio(t.numero(), d))).collect(Collectors.toList());
-        episodios.forEach(System.out::println);
         return episodios;
     }
 
@@ -66,7 +63,7 @@ public class Principal {
                 .forEach(System.out::println);
     }
 
-    public void buscaDeEps(List<Episodio> episodios){
+    public void buscaDeEpsAno(List<Episodio> episodios){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         System.out.println("\nA partir de que ano você deseja ver os resultados?");
         var ano = input.nextInt();
@@ -77,5 +74,34 @@ public class Principal {
                 .filter(e -> e.getDataDeLancamento() != null && e.getDataDeLancamento().isAfter(dataBusca))
                 .forEach(e -> System.out.println("Temporada: "+e.getTemporada()+"\nEpisódio: "+e.getTitulo()+"\nData de lançamento: " +e.getDataDeLancamento()
                                 .format(df)));
+    }
+
+    public void encontrarEpisodio(List<Episodio> listaDeEpisodios){
+        System.out.println("\nQual episodio você está buscando?");
+        var trechoTitulo = input.nextLine();
+
+        Optional<Episodio> episodioBuscado = listaDeEpisodios.stream()
+                .filter(e-> e.getTitulo().toLowerCase().contains(trechoTitulo.toLowerCase()))
+                .findFirst();
+        if (episodioBuscado.isPresent()){
+            System.out.println("Episódio encontrado!!");
+            System.out.println("NOME: "+episodioBuscado.get().getTitulo()+"   TEMPORADA: "+episodioBuscado.get().getTemporada());
+        } else {
+            System.out.println("Episódio não localizado!!");
+        }
+    }
+
+    public void AvaliacaoTemporadas(List<Episodio> listaDeEpisodios){
+        Map<Integer, Double> avaliacoesPTemporada = listaDeEpisodios.stream()
+                .filter(e -> e.getAvaliacao() > 0.0)
+                .collect(Collectors.groupingBy(Episodio::getTemporada, Collectors.averagingDouble(Episodio::getAvaliacao)));
+        System.out.println("\nAvaliação das temporadas: "+avaliacoesPTemporada);
+    }
+
+    public void ColetaDeEstatisticas(List<Episodio> listaDeEpisodios){
+        DoubleSummaryStatistics est = listaDeEpisodios.stream()
+                .filter(e -> e.getAvaliacao() > 0.0)
+                .collect(Collectors.summarizingDouble(Episodio::getAvaliacao));
+        System.out.println("Média: "+est.getAverage()+" | Melhor episódio: "+est.getMax()+" | Pior episódio: "+est.getMin());
     }
 }

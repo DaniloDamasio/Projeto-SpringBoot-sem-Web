@@ -26,7 +26,10 @@ public class ScreenmatchApplication implements CommandLineRunner {
 		List<DadosTemporada> especificacoesTemp = menu.especificacoesSerie(dadosSeries);
 		List<Episodio> episodios = menu.listaDeEpisodios(especificacoesTemp);
 		menu.episodiosFavoritos(especificacoesTemp);
-		menu.buscaDeEps(episodios);
+		menu.buscaDeEpsAno(episodios);
+		menu.encontrarEpisodio(episodios);
+		menu.AvaliacaoTemporadas(episodios);
+        menu.ColetaDeEstatisticas(episodios);
 
 
 	}
